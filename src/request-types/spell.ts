@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { potterDbBaseData } from "./base";
 
-type potterDbSpellAtributes = {
+export type potterDbSpellAtributes = {
   [key: string]: string | null;
   slug: string;
   name: string;

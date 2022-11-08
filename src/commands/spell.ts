@@ -8,6 +8,7 @@ import {
   SlashCommandStringOption,
 } from "discord.js";
 import Fuse from "fuse.js";
+import { allSpells } from "..";
 import {
   potterDbAllSpellsResponse,
   potterDbSpellResponse,
@@ -74,11 +75,10 @@ module.exports = {
     return interaction.editReply({ embeds: [embed] });
   },
   async autocomplete(interaction: AutocompleteInteraction) {
-    // this should idealy be cached in some way instead of requesting it every time
-    const allSpellsRequest: AxiosResponse<potterDbAllSpellsResponse> =
-      await axios.get("https://api.potterdb.com/v1/spells");
-    const allSpellsSearch = new Fuse(allSpellsRequest.data.data, {
-      keys: ["attributes.name", "attributes.effect", "attributes.incantation"],
+    const allSpellsData = await allSpells;
+
+    const allSpellsSearch = new Fuse(allSpellsData, {
+      keys: ["name", "effect", "incantation"],
     });
     const results = allSpellsSearch.search(interaction.options.getFocused(), {
       limit: 25,
@@ -86,8 +86,8 @@ module.exports = {
     const response: ApplicationCommandOptionChoiceData<string>[] = [];
     for (let result of results) {
       response.push({
-        name: result.item.attributes.name,
-        value: result.item.attributes.slug,
+        name: result.item.name,
+        value: result.item.slug,
       });
     }
     return interaction.respond(response);

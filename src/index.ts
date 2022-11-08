@@ -10,6 +10,11 @@ import {
 import path from "node:path";
 import fs from "node:fs";
 import dotenv from "dotenv";
+import {
+  potterDbAllSpellsResponse,
+  potterDbSpellAtributes,
+} from "./request-types/spell";
+import axios, { AxiosResponse } from "axios";
 dotenv.config();
 
 if (!process.env.TOKEN) throw new Error("no token");
@@ -54,6 +59,7 @@ client.once("ready", async () => {
 });
 
 client.on("interactionCreate", async (interaction: Interaction) => {
+  //TODO: make this nicer
   if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
     if (command) {
@@ -80,4 +86,27 @@ client.on("interactionCreate", async (interaction: Interaction) => {
     }
   }
 });
+
+// this should really be cleaned up
+// and turned into a function that can be reused for other data types
+async function getSpellsData(): Promise<potterDbSpellAtributes[]> {
+  let allSpells: potterDbSpellAtributes[] = [];
+  let spellUrls = [
+    "https://api.potterdb.com/v1/spells?page[number]=1",
+    "https://api.potterdb.com/v1/spells?page[number]=2",
+    "https://api.potterdb.com/v1/spells?page[number]=3",
+    "https://api.potterdb.com/v1/spells?page[number]=4",
+  ];
+  for (let url of spellUrls) {
+    let response: AxiosResponse<potterDbAllSpellsResponse> = await axios.get(
+      url
+    );
+    for (let spell of response.data.data) {
+      allSpells.push(spell.attributes);
+    }
+  }
+  return allSpells;
+}
+export const allSpells = getSpellsData();
+
 client.login(process.env.TOKEN);
