@@ -15,6 +15,10 @@ import {
   potterDbSpellAtributes,
 } from "./request-types/spell";
 import axios, { AxiosResponse } from "axios";
+import {
+  potterDbAllPotionsResponse,
+  potterDbPotionAtributes,
+} from "./request-types/potion";
 dotenv.config();
 
 if (!process.env.TOKEN) throw new Error("no token");
@@ -108,5 +112,23 @@ async function getSpellsData(): Promise<potterDbSpellAtributes[]> {
   return allSpells;
 }
 export const allSpells = getSpellsData();
+
+async function getPotionsData(): Promise<potterDbPotionAtributes[]> {
+  let allPotions: potterDbPotionAtributes[] = [];
+  let potionUrls = [
+    "https://api.potterdb.com/v1/potions?page[number]=1",
+    "https://api.potterdb.com/v1/potions?page[number]=2",
+  ];
+  for (let url of potionUrls) {
+    let response: AxiosResponse<potterDbAllPotionsResponse> = await axios.get(
+      url
+    );
+    for (let potion of response.data.data) {
+      allPotions.push(potion.attributes);
+    }
+  }
+  return allPotions;
+}
+export const allPotions = getPotionsData();
 
 client.login(process.env.TOKEN);

@@ -8,17 +8,17 @@ import {
   SlashCommandStringOption,
 } from "discord.js";
 import Fuse from "fuse.js";
-import { allSpells } from "..";
-import { potterDbSpellResponse } from "../request-types/spell";
+import { allPotions } from "..";
+import { potterDbPotionResponse } from "../request-types/potion";
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("spell")
-    .setDescription("Get info about a spell")
+    .setName("potion")
+    .setDescription("Get info about a potion")
     .addStringOption(
       new SlashCommandStringOption()
-        .setName("spell")
-        .setDescription("spell to get info about")
+        .setName("potion")
+        .setDescription("potion to get info about")
         .setRequired(true)
         .setAutocomplete(true)
     ),
@@ -26,9 +26,9 @@ module.exports = {
     await interaction.deferReply();
 
     try {
-      var request: AxiosResponse<potterDbSpellResponse> = await axios.get(
-        `https://api.potterdb.com/v1/spells/${interaction.options.getString(
-          "spell",
+      var request: AxiosResponse<potterDbPotionResponse> = await axios.get(
+        `https://api.potterdb.com/v1/potions/${interaction.options.getString(
+          "potion",
           true
         )}`,
         {}
@@ -43,41 +43,34 @@ module.exports = {
       .setTitle(request.data.data.attributes.name)
       .setImage(request.data.data.attributes.image)
       .setDescription(request.data.data.attributes.effect);
-    if (request.data.data.attributes.creator)
-      embed.setAuthor({ name: request.data.data.attributes.creator });
+    if (request.data.data.attributes.inventors)
+      embed.setAuthor({ name: request.data.data.attributes.inventors });
 
     for (let point in request.data.data.attributes) {
       if (
         point == "name" ||
         point == "effect" ||
-        point == "creator" ||
+        point == "inventors" ||
         point == "image" ||
         point == "slug"
       )
         continue;
       if (!request.data.data.attributes[point]) continue;
-      embed.addFields(
-        { name: point, value: request.data.data.attributes[point] ?? "" }
-        /*
-          an empy string should never be returned
-          since we are checking for it earlier
-          but appariently continue doesnt count as checking
-          not sure how to tell typescript that
-          so thats why that is there
-          i never comment my code why is this block here lol
-        */
-      );
+      embed.addFields({
+        name: point,
+        value: request.data.data.attributes[point] ?? "",
+      });
     }
 
     return interaction.editReply({ embeds: [embed] });
   },
   async autocomplete(interaction: AutocompleteInteraction) {
-    const allSpellsData = await allSpells;
+    const allPotionsData = await allPotions;
 
-    const allSpellsSearch = new Fuse(allSpellsData, {
-      keys: ["name", "effect", "incantation"],
+    const allPotionsSearch = new Fuse(allPotionsData, {
+      keys: ["name", "effect", "ingredients", "inventors", "manufacturers"],
     });
-    const results = allSpellsSearch.search(interaction.options.getFocused(), {
+    const results = allPotionsSearch.search(interaction.options.getFocused(), {
       limit: 25,
     });
     const response: ApplicationCommandOptionChoiceData<string>[] = [];

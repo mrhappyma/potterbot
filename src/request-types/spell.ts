@@ -16,6 +16,8 @@ export type potterDbSpellAtributes = {
 };
 
 interface potterDbSpellResponseData extends potterDbBaseData {
+  id: string;
+  type: "book" | "spell" | "character" | "movie" | "potion" | "spell";
   attributes: potterDbSpellAtributes;
 }
 

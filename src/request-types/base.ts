@@ -1,6 +1,4 @@
 export type potterDbBaseData = {
-  id: string;
-  type: "book" | "spell" | "character" | "movie" | "potion" | "spell";
   links: potterDbLinks;
   meta: potterDbMeta;
 };
@@ -8,6 +6,14 @@ export type potterDbBaseData = {
 type potterDbMeta = {
   copyright: string;
   generated_at: string;
+  pagination: potterDbPagination;
+};
+
+type potterDbPagination = {
+  current: number;
+  next: number;
+  last: number;
+  records: number;
 };
 
 type potterDbLinks = {
