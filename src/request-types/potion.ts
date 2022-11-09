@@ -19,7 +19,7 @@ export type potterDbPotionAtributes = {
 
 interface potterDbPotionResponseData extends potterDbBaseData {
   id: string;
-  type: "book" | "spell" | "character" | "movie" | "potion" | "spell";
+  type: "potion";
   attributes: potterDbPotionAtributes;
 }
 

@@ -19,6 +19,10 @@ import {
   potterDbAllPotionsResponse,
   potterDbPotionAtributes,
 } from "./request-types/potion";
+import {
+  potterDbAllMoviesResponse,
+  potterDbMovieAtributes,
+} from "./request-types/movie";
 dotenv.config();
 
 if (!process.env.TOKEN) throw new Error("no token");
@@ -130,5 +134,20 @@ async function getPotionsData(): Promise<potterDbPotionAtributes[]> {
   return allPotions;
 }
 export const allPotions = getPotionsData();
+
+async function getMoviesData(): Promise<potterDbMovieAtributes[]> {
+  let allMovies: potterDbMovieAtributes[] = [];
+  let movieUrls = ["https://api.potterdb.com/v1/movies?page[number]=1"];
+  for (let url of movieUrls) {
+    let response: AxiosResponse<potterDbAllMoviesResponse> = await axios.get(
+      url
+    );
+    for (let movie of response.data.data) {
+      allMovies.push(movie.attributes);
+    }
+  }
+  return allMovies;
+}
+export const allMovies = getMoviesData();
 
 client.login(process.env.TOKEN);
