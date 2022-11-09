@@ -46,6 +46,16 @@ module.exports = {
     for (let point in request.data.data.attributes) {
       if (point == "name" || point == "image" || point == "slug") continue;
       if (!request.data.data.attributes[point]) continue;
+      if (
+        (request.data.data.attributes[point]?.toString().length ?? 1) > 1024
+      ) {
+        await interaction.followUp({
+          content: `${point} - ${request.data.data.attributes[
+            point
+          ]?.toString()}`,
+        });
+        continue;
+      }
       embed.addFields({
         name: point,
         value: request.data.data.attributes[point]?.toString() ?? "",
