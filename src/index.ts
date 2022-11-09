@@ -27,6 +27,10 @@ import {
   potterDbAllCharactersResponse,
   potterDbCharacterAtributes,
 } from "./request-types/character";
+import {
+  potterDbAllBooksResponse,
+  potterDbBookAtributes,
+} from "./request-types/book";
 dotenv.config();
 
 if (!process.env.TOKEN) throw new Error("no token");
@@ -174,5 +178,21 @@ async function getCharactersData(): Promise<potterDbCharacterAtributes[]> {
   return allCharacters;
 }
 export const allCharacters = getCharactersData();
+
+async function getBooksData(): Promise<potterDbBookAtributes[]> {
+  let allBooks: potterDbBookAtributes[] = [];
+  let bookUrls = ["https://api.potterdb.com/v1/books?page[number]=1"];
+  for (let url of bookUrls) {
+    let response: AxiosResponse<potterDbAllBooksResponse> = await axios.get(
+      url
+    );
+    for (let book of response.data.data) {
+      allBooks.push(book.attributes);
+    }
+  }
+  console.log("Done caching books");
+  return allBooks;
+}
+export const allBooks = getBooksData();
 
 client.login(process.env.TOKEN);
