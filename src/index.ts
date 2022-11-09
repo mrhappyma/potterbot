@@ -23,6 +23,10 @@ import {
   potterDbAllMoviesResponse,
   potterDbMovieAtributes,
 } from "./request-types/movie";
+import {
+  potterDbAllCharactersResponse,
+  potterDbCharacterAtributes,
+} from "./request-types/character";
 dotenv.config();
 
 if (!process.env.TOKEN) throw new Error("no token");
@@ -113,6 +117,7 @@ async function getSpellsData(): Promise<potterDbSpellAtributes[]> {
       allSpells.push(spell.attributes);
     }
   }
+  console.log("Done caching spells");
   return allSpells;
 }
 export const allSpells = getSpellsData();
@@ -131,6 +136,7 @@ async function getPotionsData(): Promise<potterDbPotionAtributes[]> {
       allPotions.push(potion.attributes);
     }
   }
+  console.log("Done caching potions");
   return allPotions;
 }
 export const allPotions = getPotionsData();
@@ -146,8 +152,27 @@ async function getMoviesData(): Promise<potterDbMovieAtributes[]> {
       allMovies.push(movie.attributes);
     }
   }
+  console.log("Done caching movies");
   return allMovies;
 }
 export const allMovies = getMoviesData();
+
+async function getCharactersData(): Promise<potterDbCharacterAtributes[]> {
+  let allCharacters: potterDbCharacterAtributes[] = [];
+  let urlCount = 1;
+  while (urlCount <= 41) {
+    let response: AxiosResponse<potterDbAllCharactersResponse> =
+      await axios.get(
+        `https://api.potterdb.com/v1/characters?page[number]=${urlCount}`
+      );
+    for (let character of response.data.data) {
+      allCharacters.push(character.attributes);
+    }
+    urlCount += 1;
+  }
+  console.log("Done caching characters");
+  return allCharacters;
+}
+export const allCharacters = getCharactersData();
 
 client.login(process.env.TOKEN);
