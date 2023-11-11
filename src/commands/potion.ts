@@ -56,10 +56,11 @@ export const execute = async function (
       point == "slug"
     )
       continue;
-    if (!request.data.data.attributes[point]) continue;
+    const v = request.data.data.attributes[point]?.toString() ?? "";
+    if (v == "") continue;
     embed.addFields({
       name: point,
-      value: request.data.data.attributes[point] ?? "",
+      value: v,
     });
   }
 
